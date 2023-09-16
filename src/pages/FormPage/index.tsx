@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { useFormik, FormikProvider, Field, ErrorMessage, Form } from 'formik';
+import Swal from 'sweetalert2'
 import { Button, Input, Steps } from 'antd';
 import * as Yup from 'yup';
 import styles from './style.module.css';
-
-const { Step } = Steps;
 
 const validationSchemas = [
     Yup.object().shape({
@@ -54,16 +53,35 @@ const App: React.FC = () => {
     const formik = useFormik({
         initialValues: initialValues,
         validationSchema: validationSchemas[current],
-        onSubmit: (values) => {
-            console.log('Form submitted with values:', values);
+        onSubmit: (values, { resetForm }) => {
+            console.log("isi form :", values)
+            Swal.fire({
+                icon: 'success',
+                title: 'Form Submitted Successfully!',
+                text: 'Your form data has been submitted.',
+            }).then(() => {
+                resetForm();
+                setCurrent(0);
+            });
         },
     });
 
-    const next = async () => {
+    const initialValidation = async () => {
         const isValid = await formik.validateForm();
 
         if (isValid) {
             setCurrent(current + 1);
+        }
+    };
+
+    const next = async () => {
+        if (current === 0) {
+            await initialValidation();
+        } else {
+            const isValid = await formik.validateForm();
+            if (isValid) {
+                setCurrent(current + 1);
+            }
         }
     };
 
@@ -81,11 +99,21 @@ const App: React.FC = () => {
                     borderRadius: '8px',
                 }}
             >
-                <Steps current={current} size="small">
-                    <Step title="Personal Info" />
-                    <Step title="Address Info" />
-                    <Step title="Account Info" />
-                </Steps>
+                <Steps
+                    current={current}
+                    size="small"
+                    style={{ marginBottom: "2rem" }}
+                    items={[
+                        {
+                            title: "Personal Info",
+                        },
+                        {
+                            title: 'Address Info',
+                        },
+                        {
+                            title: 'Account Info',
+                        },
+                    ]} />
 
                 {current === 0 && (
                     <div>
@@ -271,8 +299,8 @@ const App: React.FC = () => {
                         <Button
                             type="primary"
                             onClick={() => next()}
-                            disabled={!formik.isValid}
-                            style={{ marginTop: "20px" }}
+                            disabled={!formik.isValid || current === validationSchemas.length - 1}
+                            style={{ marginTop: '20px' }}
                         >
                             Next
                         </Button>
@@ -282,7 +310,7 @@ const App: React.FC = () => {
                             type="primary"
                             onClick={() => formik.submitForm()}
                             disabled={!formik.isValid}
-                            style={{ margin: "50px" }}
+                            style={{ margin: '20px' }}
                         >
                             Submit
                         </Button>

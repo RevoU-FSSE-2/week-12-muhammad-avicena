@@ -1,56 +1,96 @@
-import { Button, Form, Input, DatePicker } from 'antd';
+import React from 'react';
+import { Formik, Field, ErrorMessage, Form } from 'formik';
+import { Button, Input } from 'antd';
+import * as Yup from 'yup';
+import styles from './style.module.css';
 
-const layout = {
-    labelCol: { span: 8 },
-    wrapperCol: { span: 16 },
+const initialValues = {
+    user: {
+        fullName: '',
+        emailAddress: '',
+        birthday: '',
+    },
 };
 
+const validationSchema = Yup.object({
+    user: Yup.object().shape({
+        fullName: Yup.string().required('Full Name is required!'),
+        emailAddress: Yup.string()
+            .required('Email Address is required!')
+            .email('Invalid email address'),
+        birthday: Yup.date()
+            .required('Birthday is required!')
+            .max(new Date(), 'Birthday cannot be in the future'),
+    }),
+});
 
-const PersonalForm = () => {
-
-    /* eslint-disable no-template-curly-in-string */
-    const validateMessages = {
-        required: '${label} is required!',
-        types: {
-            email: '${label} is not a valid email!',
-            number: '${label} is not a valid number!',
-        },
-        number: {
-            range: '${label} must be between ${min} and ${max}',
-        },
-    };
-
-    /* eslint-enable no-template-curly-in-string */
-    const onFinish = (values: string) => {
+const App: React.FC = () => {
+    const handleSubmit = (values: unknown) => {
         console.log(values);
     };
 
     return (
-        <>
+        <Formik
+            initialValues={initialValues}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+        >
             <Form
-                {...layout}
-                name="nest-messages"
-                onFinish={onFinish}
-                style={{ maxWidth: 600, padding: '3rem', borderRadius: '9999px' }}
-                validateMessages={validateMessages}
+                style={{ maxWidth: 600, padding: '3rem', borderRadius: '8px' }}
             >
-                <Form.Item name={['user', 'fullname']} label="Fullname" rules={[{ required: true }]}>
-                    <Input />
-                </Form.Item>
-                <Form.Item name={['user', 'email']} label="Email" rules={[{ required: true, type: 'email' }]}>
-                    <Input />
-                </Form.Item>
-                <Form.Item name={['user', 'birthday']} label="Date of birth" rules={[{ required: true }]}>
-                    <DatePicker />
-                </Form.Item>
-                <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
-                    <Button type="primary" htmlType="submit">
+                <div className="form-group">
+                    <label htmlFor="user.fullName" className={styles.label}>
+                        Full Name
+                    </label>
+                    <Field
+                        type="text"
+                        id="user.fullName"
+                        name="user.fullName"
+                        as={Input}
+                        className={`${styles.field} form-control`} // Apply field styles
+                    />
+                    <ErrorMessage
+                        name="user.fullName"
+                        component="div"
+                        className={styles.errorText}
+                    />
+                    <label htmlFor="user.emailAddress" className={styles.label}>
+                        Email Address
+                    </label>
+                    <Field
+                        type="email"
+                        id="user.emailAddress"
+                        name="user.emailAddress"
+                        as={Input}
+                        className={`${styles.field} form-control`} // Apply field styles
+                    />
+                    <ErrorMessage
+                        name="user.emailAddress"
+                        component="div"
+                        className={styles.errorText}
+                    />
+                    <label htmlFor="user.birthday" className={styles.label}>
+                        Birthday
+                    </label>
+                    <Field
+                        type="date"
+                        id="user.birthday"
+                        name="user.birthday"
+                        as={Input}
+                        className={`${styles.field} form-control`} // Apply field styles
+                    />
+                    <ErrorMessage
+                        name="user.birthday"
+                        component="div"
+                        className={styles.errorText}
+                    />
+                    <Button type="primary" htmlType="submit" style={{ marginTop: "20px" }}>
                         Submit
                     </Button>
-                </Form.Item>
+                </div>
             </Form>
-        </>
-    )
+        </Formik>
+    );
 };
 
-export default PersonalForm;
+export default App;

@@ -1,83 +1,110 @@
 import React from 'react';
-import { Form, Input, Button, message } from 'antd';
-import { useFormik } from 'formik';
+import { Formik, Field, ErrorMessage, Form } from 'formik';
+import { Button, Input } from 'antd';
 import * as Yup from 'yup';
+import styles from './style.module.css';
 
-const validationSchema = Yup.object().shape({
+const initialValues = {
+    user: {
+        streetAddress: '',
+        city: '',
+        state: '',
+        zipcode: ''
+    },
+};
+
+const validationSchema = Yup.object({
     user: Yup.object().shape({
         streetAddress: Yup.string().required('Street Address is required!'),
         city: Yup.string().required('City is required!'),
         state: Yup.string().required('State is required!'),
-        zipcode: Yup.string().required('Zip Code is required!'),
+        zipcode: Yup.string()
+            .required('Zipcode is required!')
+            .matches(/^\d{5}$/, 'Zipcode must be 5 digits'),
     }),
 });
 
-const layout = {
-    labelCol: { span: 8 },
-    wrapperCol: { span: 16 },
-};
-
 const App: React.FC = () => {
-    const formik = useFormik({
-        initialValues: {
-            user: {
-                streetAddress: '',
-                city: '',
-                state: '',
-                zipcode: '',
-            },
-        },
-        validationSchema,
-        onSubmit: (values) => {
-            console.log(values);
-            message.success('Form submitted successfully!');
-        },
-    });
+    const handleSubmit = (values: unknown) => {
+        console.log(values);
+    };
 
     return (
-        <Form
-            {...layout}
-            onFinish={formik.handleSubmit}
-            style={{ maxWidth: 600, padding: '3rem', borderRadius: '9999px' }}
+        <Formik
+            initialValues={initialValues}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
         >
-            <Form.Item
-                label="Street Address"
-                name="user.streetAddress"
-                rules={[{ required: true, message: 'Street Address is required!' }]}
+            <Form
+                style={{ maxWidth: 600, padding: '3rem', borderRadius: '8px' }}
             >
-                <Input onChange={formik.handleChange} value={formik.values.user.streetAddress} />
-            </Form.Item>
-
-            <Form.Item
-                label="City"
-                name="user.city"
-                rules={[{ required: true, message: 'City is required!' }]}
-            >
-                <Input onChange={formik.handleChange} value={formik.values.user.city} />
-            </Form.Item>
-
-            <Form.Item
-                label="State"
-                name="user.state"
-                rules={[{ required: true, message: 'State is required!' }]}
-            >
-                <Input onChange={formik.handleChange} value={formik.values.user.state} />
-            </Form.Item>
-
-            <Form.Item
-                label="Zip Code"
-                name="user.zipcode"
-                rules={[{ required: true, message: 'Zip Code is required!' }]}
-            >
-                <Input onChange={formik.handleChange} value={formik.values.user.zipcode} />
-            </Form.Item>
-
-            <Form.Item wrapperCol={{ offset: 8 }}>
-                <Button type="primary" htmlType="submit">
-                    Submit
-                </Button>
-            </Form.Item>
-        </Form>
+                <div className="form-group">
+                    <label htmlFor="user.streetAddress" className={styles.label}>
+                        Street Address
+                    </label>
+                    <Field
+                        type="text"
+                        id="user.streetAddress"
+                        name="user.streetAddress"
+                        as={Input}
+                        className={`${styles.field} form-control`} // Apply field styles
+                    />
+                    <ErrorMessage
+                        name="user.streetAddress"
+                        component="div"
+                        className={styles.errorText}
+                    />
+                    <label htmlFor="user.city" className={styles.label}>
+                        City
+                    </label>
+                    <Field
+                        type="text"
+                        id="user.city"
+                        name="user.city"
+                        as={Input}
+                        className={`${styles.field} form-control`} // Apply field styles
+                    />
+                    <ErrorMessage
+                        name="user.city"
+                        component="div"
+                        className={styles.errorText}
+                    />
+                    <label htmlFor="user.state" className={styles.label}>
+                        State
+                    </label>
+                    <Field
+                        type="text"
+                        id="user.state"
+                        name="user.state"
+                        as={Input}
+                        className={`${styles.field} form-control`} // Apply field styles
+                    />
+                    <ErrorMessage
+                        name="user.state"
+                        component="div"
+                        className={styles.errorText}
+                    />
+                    <label htmlFor="user.zipcode" className={styles.label}>
+                        Zipcode
+                    </label>
+                    <Field
+                        type="text"
+                        id="user.zipcode"
+                        name="user.zipcode"
+                        as={Input}
+                        className={`${styles.field} form-control`} // Apply field styles
+                    />
+                    <ErrorMessage
+                        name="user.zipcode"
+                        component="div"
+                        className={styles.errorText}
+                    />
+                    <Button type="primary" htmlType="submit" style={{ marginTop: "20px" }}>
+                        Submit
+                    </Button>
+                </div>
+            </Form>
+        </Formik>
     );
 };
 
